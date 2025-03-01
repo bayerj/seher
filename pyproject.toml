@@ -1,0 +1,72 @@
+[project]
+name = "seher"
+version = "0.1.0"
+description = "Add your description here"
+authors = [
+    { name = "Justin Bayer", email = "bayerj@argmax.ai" }
+]
+dependencies = [
+    "jax>=0.5.1",
+    "scipy>=1.15.2",
+]
+readme = "README.md"
+requires-python = ">= 3.12"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.rye]
+managed = true
+dev-dependencies = [
+    "ruff>=0.9.9",
+    "ipython>=9.0.0",
+]
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/seher"]
+
+
+[tool.ruff]
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "N",  # pep8-naming
+    "I",  # isort
+    "D",  # pydocstyle
+]
+
+ignore = []
+
+# Allow autofix for all enabled rules (when `--fix`) is provided.
+fixable = [
+    "I"  # isort rules: I001 unsorted-imports, I002	missing-required-import
+]
+unfixable = []
+
+# Exclude a variety of commonly ignored directories.
+exclude = [
+    ".git",
+    ".ruff_cache",
+    ".venv",
+    ".vscode",
+    ".pytest_cache",
+    ".coverage",
+]
+
+# Same as Black.
+line-length = 79
+
+# Allow unused variables when underscore-prefixed.
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+# Assume Python 3.12.
+target-version = "py312"
+
+[tool.ruff.isort]
+force-sort-within-sections = false
+section-order = ["future", "standard-library", "third-party", "mlrl", "first-party", "local-folder"]
