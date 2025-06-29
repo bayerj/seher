@@ -3,11 +3,25 @@ name = "seher"
 version = "0.1.0"
 description = "Add your description here"
 authors = [
-    { name = "Justin Bayer", email = "bayerj@argmax.ai" }
+    { name = "Justin Bayer", email = "bayer.justin@googlemail.com" }
 ]
 dependencies = [
-    "jax>=0.5.1",
+    "jax>=0.6.1",
     "scipy>=1.15.2",
+    "flax>=0.10.4",
+    "plotext>=5.3.2",
+    "dm-control>=1.0.27",
+    "playground>=0.0.3",
+    "moviepy>=2.1.2",
+    "rich>=13.9.4",
+    "optax>=0.2.4",
+    "optuna>=4.2.1",
+    "optuna-dashboard>=0.17.0",
+    "mujoco-mjx>=3.3.0",
+    "robot-descriptions>=1.15.0",
+    "jaxlib>=0.6.1",
+    "defopt>=6.4.0",
+    "matplotlib>=3.10.3",
 ]
 readme = "README.md"
 requires-python = ">= 3.12"
@@ -21,7 +35,28 @@ managed = true
 dev-dependencies = [
     "ruff>=0.9.9",
     "ipython>=9.0.0",
+    "pytest>=8.3.4",
+    "ipdb>=0.13.13",
+    "pre-commit>=4.1.0",
+    "pytest-cov>=6.0.0",
+    "python-lsp-ruff>=2.2.2",
+    "python-lsp-server[all]>=1.12.2",
+    "pyright>=1.1.400",
+    "pytest-xdist>=3.7.0",
 ]
+
+[tool.rye.scripts]
+    quick-test = { cmd = "py.test -n auto -x -v -m 'not slow' --doctest-glob='*.md' --doctest-modules --cov=src/seher --cov-report=html:coverage docs src/seher tests", env = { CUDA_VISIBLE_DEVICES = "666" } }
+    quick-test-no-perf = { cmd = "py.test -x -v -m 'not performance' --doctest-glob='*.md' --doctest-modules --cov=src/seher --cov-report=html:coverage docs src/seher tests", env = { CUDA_VISIBLE_DEVICES = "666" } }
+    quick-test-all = { cmd = "py.test -v -m 'not slow' --doctest-glob='*.md' --doctest-modules --cov=src/seher --cov-report=html:coverage docs src/seher tests", env = { CUDA_VISIBLE_DEVICES = "666" } }
+    test = { cmd = "py.test -vv --doctest-glob='*.md' --doctest-modules --cov=src/seher --cov-report=html:coverage docs src/seher tests", env = { CUDA_VISIBLE_DEVICES = "666" } }
+    pyright-run = { cmd = "pyright --skipunannotated --level error src" }
+
+[tool.pytest.ini_options]
+    markers = [
+        "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+        "performance: marks tests as learning performance tests(deselect with '-m \"not performance\"')",
+    ]
 
 [tool.hatch.metadata]
 allow-direct-references = true
@@ -29,9 +64,11 @@ allow-direct-references = true
 [tool.hatch.build.targets.wheel]
 packages = ["src/seher"]
 
+[tool.pyright]
+typeCheckingMode = "basic"
 
 [tool.ruff]
-select = [
+lint.select = [
     "E",  # pycodestyle errors
     "W",  # pycodestyle warnings
     "F",  # pyflakes
@@ -40,13 +77,19 @@ select = [
     "D",  # pydocstyle
 ]
 
-ignore = []
+lint.ignore = [
+    "D203",  # incorrect-blank-line-before-class (conflicts with D211)
+    "D213",  # multi-line-summary-second-line (conflicts with D212)
+]
 
 # Allow autofix for all enabled rules (when `--fix`) is provided.
-fixable = [
+lint.fixable = [
     "I"  # isort rules: I001 unsorted-imports, I002	missing-required-import
 ]
-unfixable = []
+lint.unfixable = []
+
+# Allow unused variables when underscore-prefixed.
+lint.dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 
 # Exclude a variety of commonly ignored directories.
 exclude = [
@@ -61,12 +104,9 @@ exclude = [
 # Same as Black.
 line-length = 79
 
-# Allow unused variables when underscore-prefixed.
-dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
-
 # Assume Python 3.12.
 target-version = "py312"
 
-[tool.ruff.isort]
+[tool.ruff.lint.isort]
 force-sort-within-sections = false
-section-order = ["future", "standard-library", "third-party", "mlrl", "first-party", "local-folder"]
+section-order = ["future", "standard-library", "third-party", "first-party", "local-folder"]

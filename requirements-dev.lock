@@ -10,55 +10,451 @@
 #   universal: false
 
 -e file:.
+absl-py==2.1.0
+    # via brax
+    # via chex
+    # via dm-control
+    # via dm-env
+    # via dm-tree
+    # via labmaze
+    # via ml-collections
+    # via mujoco
+    # via mujoco-mjx
+    # via optax
+    # via orbax-checkpoint
+alembic==1.15.1
+    # via optuna
+astroid==3.3.9
+    # via pylint
 asttokens==3.0.0
     # via stack-data
+attrs==25.1.0
+    # via cattrs
+    # via dm-tree
+    # via lsprotocol
+autopep8==2.0.4
+    # via python-lsp-server
+blinker==1.9.0
+    # via flask
+bottle==0.13.2
+    # via optuna-dashboard
+brax==0.12.1
+    # via playground
+cattrs==24.1.2
+    # via lsprotocol
+    # via python-lsp-ruff
+certifi==2025.1.31
+    # via requests
+cfgv==3.4.0
+    # via pre-commit
+charset-normalizer==3.4.1
+    # via requests
+chex==0.1.89
+    # via optax
+click==8.1.8
+    # via flask
+cloudpickle==3.1.1
+    # via gym
+colorlog==6.9.0
+    # via optuna
+contourpy==1.3.2
+    # via matplotlib
+coverage==7.6.12
+    # via pytest-cov
+cycler==0.12.1
+    # via matplotlib
 decorator==5.2.1
+    # via ipdb
     # via ipython
+    # via moviepy
+defopt==6.4.0
+    # via seher
+dill==0.3.9
+    # via pylint
+distlib==0.3.9
+    # via virtualenv
+dm-control==1.0.27
+    # via seher
+dm-env==1.6
+    # via brax
+    # via dm-control
+dm-tree==0.1.9
+    # via dm-control
+    # via dm-env
+docstring-to-markdown==0.15
+    # via python-lsp-server
+docutils==0.21.2
+    # via defopt
+etils==1.12.0
+    # via brax
+    # via mujoco
+    # via mujoco-mjx
+    # via optax
+    # via orbax-checkpoint
+    # via playground
+execnet==2.1.1
+    # via pytest-xdist
 executing==2.2.0
     # via stack-data
+filelock==3.17.0
+    # via virtualenv
+flake8==7.1.2
+    # via python-lsp-server
+flask==3.1.0
+    # via brax
+    # via flask-cors
+flask-cors==5.0.1
+    # via brax
+flax==0.10.4
+    # via brax
+    # via playground
+    # via seher
+fonttools==4.58.4
+    # via matplotlib
+fsspec==2025.2.0
+    # via etils
+gitdb==4.0.12
+    # via gitpython
+gitpython==3.1.44
+    # via robot-descriptions
+glfw==2.8.0
+    # via dm-control
+    # via mujoco
+grpcio==1.70.0
+    # via brax
+gym==0.26.2
+    # via brax
+gym-notices==0.0.8
+    # via gym
+humanize==4.12.1
+    # via orbax-checkpoint
+identify==2.6.8
+    # via pre-commit
+idna==3.10
+    # via requests
+imageio==2.37.0
+    # via moviepy
+imageio-ffmpeg==0.6.0
+    # via moviepy
+importlib-resources==6.5.2
+    # via etils
+iniconfig==2.0.0
+    # via pytest
+ipdb==0.13.13
 ipython==9.0.0
+    # via ipdb
 ipython-pygments-lexers==1.1.1
     # via ipython
-jax==0.5.1
+isort==6.0.1
+    # via pylint
+itsdangerous==2.2.0
+    # via flask
+jax==0.6.1
+    # via brax
+    # via chex
+    # via flax
+    # via jaxopt
+    # via mujoco-mjx
+    # via optax
+    # via orbax-checkpoint
+    # via playground
     # via seher
-jaxlib==0.5.1
+jaxlib==0.6.1
+    # via brax
+    # via chex
     # via jax
+    # via jaxopt
+    # via mujoco-mjx
+    # via optax
+    # via seher
+jaxopt==0.8.3
+    # via brax
 jedi==0.19.2
     # via ipython
+    # via python-lsp-server
+jinja2==3.1.5
+    # via brax
+    # via flask
+joblib==1.4.2
+    # via scikit-learn
+kiwisolver==1.4.8
+    # via matplotlib
+labmaze==1.0.6
+    # via dm-control
+lsprotocol==2023.0.1
+    # via python-lsp-ruff
+lxml==5.3.1
+    # via dm-control
+    # via playground
+mako==1.3.9
+    # via alembic
+markdown-it-py==3.0.0
+    # via rich
+markupsafe==3.0.2
+    # via jinja2
+    # via mako
+    # via werkzeug
+matplotlib==3.10.3
+    # via seher
 matplotlib-inline==0.1.7
     # via ipython
+mccabe==0.7.0
+    # via flake8
+    # via pylint
+    # via python-lsp-server
+mdurl==0.1.2
+    # via markdown-it-py
+ml-collections==1.0.0
+    # via brax
+    # via playground
 ml-dtypes==0.5.1
     # via jax
     # via jaxlib
+    # via tensorstore
+moviepy==2.1.2
+    # via seher
+msgpack==1.1.0
+    # via flax
+    # via orbax-checkpoint
+mujoco==3.3.0
+    # via brax
+    # via dm-control
+    # via mujoco-mjx
+    # via playground
+mujoco-mjx==3.3.0
+    # via brax
+    # via playground
+    # via seher
+nest-asyncio==1.6.0
+    # via orbax-checkpoint
+nodeenv==1.9.1
+    # via pre-commit
+    # via pyright
 numpy==2.2.3
+    # via brax
+    # via chex
+    # via contourpy
+    # via dm-control
+    # via dm-env
+    # via dm-tree
+    # via flax
+    # via gym
+    # via imageio
     # via jax
     # via jaxlib
+    # via jaxopt
+    # via labmaze
+    # via matplotlib
     # via ml-dtypes
+    # via moviepy
+    # via mujoco
+    # via optax
+    # via optuna
+    # via orbax-checkpoint
+    # via scikit-learn
     # via scipy
+    # via tensorboardx
+    # via tensorstore
+    # via treescope
+    # via trimesh
 opt-einsum==3.4.0
     # via jax
+optax==0.2.4
+    # via brax
+    # via flax
+    # via seher
+optuna==4.2.1
+    # via optuna-dashboard
+    # via seher
+optuna-dashboard==0.17.0
+    # via seher
+orbax-checkpoint==0.11.5
+    # via brax
+    # via flax
+packaging==24.2
+    # via matplotlib
+    # via optuna
+    # via optuna-dashboard
+    # via pytest
+    # via pytoolconfig
+    # via tensorboardx
 parso==0.8.4
     # via jedi
 pexpect==4.9.0
     # via ipython
+pillow==10.4.0
+    # via brax
+    # via imageio
+    # via matplotlib
+    # via moviepy
+platformdirs==4.3.6
+    # via pylint
+    # via pytoolconfig
+    # via virtualenv
+    # via yapf
+playground==0.0.3
+    # via seher
+plotext==5.3.2
+    # via seher
+pluggy==1.5.0
+    # via pytest
+    # via python-lsp-server
+pockets==0.9.1
+    # via sphinxcontrib-napoleon
+pre-commit==4.1.0
+proglog==0.1.10
+    # via moviepy
 prompt-toolkit==3.0.50
     # via ipython
+protobuf==5.29.3
+    # via dm-control
+    # via orbax-checkpoint
+    # via tensorboardx
 ptyprocess==0.7.0
     # via pexpect
 pure-eval==0.2.3
     # via stack-data
+pycodestyle==2.12.1
+    # via autopep8
+    # via flake8
+    # via python-lsp-server
+pydocstyle==6.3.0
+    # via python-lsp-server
+pyflakes==3.2.0
+    # via flake8
+    # via python-lsp-server
 pygments==2.19.1
     # via ipython
     # via ipython-pygments-lexers
+    # via rich
+pylint==3.3.5
+    # via python-lsp-server
+pyopengl==3.1.9
+    # via dm-control
+    # via mujoco
+pyparsing==3.2.1
+    # via dm-control
+    # via matplotlib
+pyright==1.1.400
+pytest==8.3.4
+    # via pytest-cov
+    # via pytest-xdist
+pytest-cov==6.0.0
+pytest-xdist==3.7.0
+python-dateutil==2.9.0.post0
+    # via matplotlib
+python-dotenv==1.0.1
+    # via moviepy
+python-lsp-jsonrpc==1.1.2
+    # via python-lsp-server
+python-lsp-ruff==2.2.2
+python-lsp-server==1.12.2
+    # via python-lsp-ruff
+pytinyrenderer==0.0.14
+    # via brax
+pytoolconfig==1.3.1
+    # via rope
+pyyaml==6.0.2
+    # via flax
+    # via ml-collections
+    # via optuna
+    # via orbax-checkpoint
+    # via pre-commit
+requests==2.32.3
+    # via dm-control
+rich==13.9.4
+    # via flax
+    # via seher
+robot-descriptions==1.15.0
+    # via seher
+rope==1.13.0
+    # via python-lsp-server
 ruff==0.9.9
+    # via python-lsp-ruff
+scikit-learn==1.6.1
+    # via optuna-dashboard
 scipy==1.15.2
+    # via brax
+    # via dm-control
     # via jax
     # via jaxlib
+    # via jaxopt
+    # via mujoco-mjx
+    # via scikit-learn
     # via seher
+setuptools==75.8.2
+    # via chex
+    # via dm-control
+    # via labmaze
+simplejson==3.20.1
+    # via orbax-checkpoint
+six==1.17.0
+    # via ml-collections
+    # via pockets
+    # via python-dateutil
+    # via sphinxcontrib-napoleon
+smmap==5.0.2
+    # via gitdb
+snowballstemmer==2.2.0
+    # via pydocstyle
+sphinxcontrib-napoleon==0.7
+    # via defopt
+sqlalchemy==2.0.39
+    # via alembic
+    # via optuna
 stack-data==0.6.3
     # via ipython
+tensorboardx==2.6.2.2
+    # via brax
+tensorstore==0.1.72
+    # via flax
+    # via orbax-checkpoint
+threadpoolctl==3.6.0
+    # via scikit-learn
+tomlkit==0.13.2
+    # via pylint
+toolz==1.0.0
+    # via chex
+tqdm==4.67.1
+    # via dm-control
+    # via optuna
+    # via playground
+    # via proglog
+    # via robot-descriptions
 traitlets==5.14.3
     # via ipython
     # via matplotlib-inline
+treescope==0.1.9
+    # via flax
+trimesh==4.6.4
+    # via brax
+    # via mujoco-mjx
+typing-extensions==4.12.2
+    # via alembic
+    # via brax
+    # via chex
+    # via etils
+    # via flax
+    # via orbax-checkpoint
+    # via pyright
+    # via sqlalchemy
+ujson==5.10.0
+    # via python-lsp-jsonrpc
+    # via python-lsp-server
+urllib3==2.3.0
+    # via requests
+virtualenv==20.29.2
+    # via pre-commit
 wcwidth==0.2.13
     # via prompt-toolkit
+werkzeug==3.1.3
+    # via flask
+    # via flask-cors
+whatthepatch==1.0.7
+    # via python-lsp-server
+wrapt==1.17.2
+    # via dm-tree
+yapf==0.43.0
+    # via python-lsp-server
+zipp==3.21.0
+    # via etils

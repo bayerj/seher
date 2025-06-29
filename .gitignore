@@ -5,6 +5,12 @@ build/
 dist/
 wheels/
 *.egg-info
+.coverage
 
 # venv
 .venv
+
+# artifacts during training
+*.sqlite3
+*.dill
+*.gif
