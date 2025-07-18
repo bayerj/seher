@@ -1,7 +1,7 @@
 [project]
 name = "seher"
 version = "0.1.0"
-description = "Add your description here"
+description = "Seher is an experiment in writing reinforcement learning and optimal control software using Python 3.12, relying heavily on generics."
 authors = [
     { name = "Justin Bayer", email = "bayer.justin@googlemail.com" }
 ]
