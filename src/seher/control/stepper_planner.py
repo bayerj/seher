@@ -1,6 +1,6 @@
 """Implementation of an MPPI planner."""
 
-from typing import TypeVar
+from typing import Callable, TypeVar
 
 import jax
 import jax.nn
