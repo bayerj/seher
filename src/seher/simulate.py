@@ -88,6 +88,12 @@ class RichProgressCallback(
         del state, policy_carry, control
         self._update(cost=float(cost.mean()), i_update=i_step)
 
+    def __hash__(self):
+        return id(self)
+
+    def __eq__(self, other):
+        return id(self) == id(other)
+
 
 @dataclass
 class History[State, Control, Cost, PolicyCarry]:
