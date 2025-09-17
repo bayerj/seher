@@ -54,6 +54,7 @@ class StepperPlanner[State]:
     n_plan_steps: int = field(pytree_node=False)
     n_iter: int = field(pytree_node=False)
     warm_start: bool = True
+    decode_plan: Callable[[jax.Array], jax.Array] = lambda x: x
 
     def __post_init__(self):  # noqa: D105
         if self.n_iter <= 0:
@@ -94,9 +95,10 @@ class StepperPlanner[State]:
             problem_data: State,
             key: JaxRandomKey,
         ) -> tuple[jax.Array, None]:
+            plan = self.decode_plan(parameter)
             return calc_costs_of_plan(
                 self.mdp,
-                parameter,
+                plan,
                 problem_data,
                 key,
             ), None
