@@ -3,7 +3,6 @@
 from typing import Callable, TypeVar
 
 import jax
-import jax.nn
 import jax.random as jr
 from flax.struct import dataclass, field
 
@@ -46,6 +45,10 @@ class StepperPlanner[State]:
     min_scale:
         Make sure the scale of the search distribution never goes below this
         value.
+    decode_plan:
+        Optional argument to decode the plan into a longer one. This is useful
+        for planning with `k` support controls which are then interpolated into
+        a plan of length `m > k`.
 
     """
 
@@ -105,7 +108,7 @@ class StepperPlanner[State]:
 
         optimizer = self.optimizer.replace(objective=objective)  # type: ignore
 
-        def body_fun(i, val):
+        def body_fun(_, val):
             carry_val, key_val = val
             key_val, step_key = jr.split(key_val)
             new_stepper_carry, _, _ = optimizer(
