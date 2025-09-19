@@ -1,9 +1,8 @@
 """Implementation of an MPPI planner."""
 
-from typing import TypeVar
+from typing import Callable, TypeVar
 
 import jax
-import jax.nn
 import jax.random as jr
 from flax.struct import dataclass, field
 
@@ -46,6 +45,10 @@ class StepperPlanner[State]:
     min_scale:
         Make sure the scale of the search distribution never goes below this
         value.
+    decode_plan:
+        Optional argument to decode the plan into a longer one. This is useful
+        for planning with `k` support controls which are then interpolated into
+        a plan of length `m > k`.
 
     """
 
@@ -54,6 +57,7 @@ class StepperPlanner[State]:
     n_plan_steps: int = field(pytree_node=False)
     n_iter: int = field(pytree_node=False)
     warm_start: bool = True
+    decode_plan: Callable[[jax.Array], jax.Array] = lambda x: x
 
     def __post_init__(self):  # noqa: D105
         if self.n_iter <= 0:
@@ -94,16 +98,17 @@ class StepperPlanner[State]:
             problem_data: State,
             key: JaxRandomKey,
         ) -> tuple[jax.Array, None]:
+            plan = self.decode_plan(parameter)
             return calc_costs_of_plan(
                 self.mdp,
-                parameter,
+                plan,
                 problem_data,
                 key,
             ), None
 
         optimizer = self.optimizer.replace(objective=objective)  # type: ignore
 
-        def body_fun(i, val):
+        def body_fun(_, val):
             carry_val, key_val = val
             key_val, step_key = jr.split(key_val)
             new_stepper_carry, _, _ = optimizer(
