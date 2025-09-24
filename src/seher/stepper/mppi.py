@@ -122,7 +122,7 @@ class GaussianMPPIOptimizer[ProblemData](
         best = candidates[best_idxs]
         best_costs = total_costs[best_idxs]
 
-        weights = jax.nn.softmax(self.temperature * best_costs).reshape(
+        weights = jax.nn.softmax(-best_costs / self.temperature).reshape(
             (-1, 1, 1)
         )
         loc = (best * weights).sum(0)
