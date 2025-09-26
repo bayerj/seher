@@ -1,6 +1,6 @@
 """Implementation of MPPI optimizer."""
 
-from typing import cast
+from typing import Callable, cast
 
 import jax
 import jax.lax as jl
