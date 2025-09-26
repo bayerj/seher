@@ -76,6 +76,7 @@ class GaussianMPPIOptimizer[ProblemData](
     initial_scale: jax.Array
     warm_start: bool = True
     min_scale: float = 0.1
+    max_scale: float = jnp.inf
     temperature: float = 0.0
 
     # TODO: adapt the signature to return GaussianMPPIOptimizerCarry and
@@ -128,6 +129,7 @@ class GaussianMPPIOptimizer[ProblemData](
         loc = (best * weights).sum(0)
         scale = (weights * (best - loc) ** 2).sum(0) ** 0.5
         scale = jnp.maximum(scale, self.min_scale)
+        scale = jnp.minimum(scale, self.max_scale)
 
         return GaussianMPPIOptimizerCarry(current=loc, scale=scale), loc, None
 
