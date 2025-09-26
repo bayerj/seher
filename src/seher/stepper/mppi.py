@@ -78,6 +78,7 @@ class GaussianMPPIOptimizer[ProblemData](
     min_scale: float = 0.1
     max_scale: float = jnp.inf
     temperature: float = 0.0
+    project_candidates: Callable[[jax.Array], jax.Array] = lambda x: x
 
     # TODO: adapt the signature to return GaussianMPPIOptimizerCarry and
     # pyright still passes.
@@ -115,6 +116,7 @@ class GaussianMPPIOptimizer[ProblemData](
             * carry.scale[jnp.newaxis]
             + carry.current[jnp.newaxis]
         )
+        candidates = self.project_candidates(candidates)
         get_costs = jax.vmap(self.objective, in_axes=(0, None, None))
         total_costs, _ = get_costs(candidates, problem_data, eval_key)
 
