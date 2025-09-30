@@ -73,6 +73,9 @@ class GaussianMPPIOptimizer[ProblemData](
         `temperature` to control the sharpness. Higher temperatures
         result in sharper contributions, i.e. for -> oo this would be the same
         as top 1, while for 0 it is a uniform contribution.
+    project_candidates:
+        Optional callable to project candidates to a feasible region, e.g. to
+        respect box constraints via clipping.
 
     """
 
