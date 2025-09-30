@@ -37,14 +37,22 @@ class MujocoPlaygroundMDP:
     @property
     def control_min(self) -> jax.Array:
         """Minimum control values from the environment."""
-        # MjxEnv action_spec attribute is not properly typed.
-        return jnp.array(self.env.action_spec.minimum)  # type: ignore
+        control_min = jnp.where(
+            self.env.mj_model.actuator_ctrllimited,
+            self.env.mj_model.actuator_ctrlrange[:, 0],
+            -jnp.inf,
+        )
+        return control_min
 
     @property
     def control_max(self) -> jax.Array:
         """Maximum control values from the environment."""
-        # MjxEnv action_spec attribute is not properly typed.
-        return jnp.array(self.env.action_spec.maximum)  # type: ignore
+        control_max = jnp.where(
+            self.env.mj_model.actuator_ctrllimited,
+            self.env.mj_model.actuator_ctrlrange[:, 1],
+            jnp.inf,
+        )
+        return control_max
 
     def init(self, key: JaxRandomKey) -> mp.State:  # noqa: D102
         return self.env.reset(key)
