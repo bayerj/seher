@@ -49,7 +49,9 @@ class StepperPlanner[State]:
         Optional argument to decode the plan into a longer one. This is useful
         for planning with `k` support controls which are then interpolated into
         a plan of length `m > k`.
-
+    encode_plan:
+        Optional argument, inverse operation of `decode_plan`. Necessary if
+        `warm_start` is True.
     """
 
     mdp: MDP[State, jax.Array, jax.Array]
