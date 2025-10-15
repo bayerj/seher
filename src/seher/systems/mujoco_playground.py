@@ -1,12 +1,14 @@
 """Making mujoco_playground available for seher."""
 
 import pathlib
+from typing import Any
 
 import jax
 import jax.numpy as jnp
 import mujoco_playground as mp
 from flax.struct import dataclass
 from jax.tree_util import tree_map
+from ml_collections import ConfigDict
 from moviepy.video.io.ImageSequenceClip import ImageSequenceClip
 from mujoco_playground._src.mjx_env import MjxEnv
 
@@ -78,14 +80,20 @@ class MujocoPlaygroundMDP:
         return jnp.empty(self.env.action_size)
 
     @staticmethod
-    def from_registry(task_name: str) -> "MujocoPlaygroundMDP":
+    def from_registry(
+        task_name: str,
+        config: ConfigDict,
+        config_overrides: dict[str, str | int | list[Any]],
+    ) -> "MujocoPlaygroundMDP":
         """Return environment instance based on task name.
 
         See
         `mujoco_playground.registry.{manipulation,location,dm_control_suite}.ALL`
         for lists.
         """
-        env = mp.registry.load(task_name)
+        env = mp.registry.load(
+            task_name, config=config, config_overrides=config_overrides
+        )
         return MujocoPlaygroundMDP(env=env)
 
 
