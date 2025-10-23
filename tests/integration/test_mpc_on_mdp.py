@@ -106,13 +106,13 @@ def _uniform_proposal(
                 mdp=None,  # type: ignore
                 optimizer=(
                     optax.adam(learning_rate=0.05),  # Primal: Adam
-                    optax.sgd(learning_rate=0.1),    # Dual: plain gradient descent
+                    optax.sgd(learning_rate=0.1),    # Multipliers: plain gradient descent
                 ),
                 n_plan_steps=30,  # Longer horizon for better performance
                 chunk_size=5,
                 n_iter=30,
                 chunk_tolerance=0.1,
-                initial_dual_scale=0.001,  # Lower for more stable control
+                initial_multiplier_scale=0.001,  # Lower for more stable control
                 warm_start=True,
             ),
             Pendulum(),

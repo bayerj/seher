@@ -24,7 +24,7 @@ def test_one_step():
         chunk_size=chunk_size,
         n_iter=n_iter,
         chunk_tolerance=0.1,
-        initial_dual_scale=0.1,
+        initial_multiplier_scale=0.1,
     )
 
     initial_state = mdp.init(key=key)

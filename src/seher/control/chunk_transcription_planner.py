@@ -195,7 +195,7 @@ class ChunkTranscriptionPlanner[State]:
         MDP to plan for.
     optimizer:
         Optax optimizer. Can be a single optimizer (applied to both primal and
-        dual) or a tuple of (primal_optimizer, dual_optimizer) for separate
+        multipliers) or a tuple of (primal_optimizer, multipliers_optimizer) for separate
         optimization.
     n_plan_steps:
         Total number of timesteps to plan for.
@@ -205,8 +205,11 @@ class ChunkTranscriptionPlanner[State]:
         Number of optimization iterations.
     chunk_tolerance:
         Tolerance band for constraint violations.
-    initial_dual_scale:
+    initial_multiplier_scale:
         Initial scale for Lagrangian multipliers.
+    multiplier_damping:
+        Damping coefficient for multipliers. Adds a quadratic penalty
+        to prevent multipliers from growing too large.
     warm_start:
         If True, initialize from previous plan (shifted by one step).
 
@@ -218,7 +221,8 @@ class ChunkTranscriptionPlanner[State]:
     chunk_size: int = field(pytree_node=False)
     n_iter: int = field(pytree_node=False)
     chunk_tolerance: float = 0.01
-    initial_dual_scale: float = 0.1
+    initial_multiplier_scale: float = 0.1
+    multiplier_damping: float = 0.01
     warm_start: bool = True
 
     def __post_init__(self):  # noqa: D105
@@ -250,20 +254,25 @@ class ChunkTranscriptionPlanner[State]:
             chunk_states=chunk_states, controls=controls
         )
 
-        dual = jnp.zeros((self.n_chunks, state_dim)) + self.initial_dual_scale
+        multipliers = jnp.zeros((self.n_chunks, state_dim)) + self.initial_multiplier_scale
 
-        sample_parameter = (primal, dual)
+        sample_parameter = (primal, multipliers)
 
-        # Check if optimizer is a tuple (primal, dual) or single optimizer
-        if isinstance(self.optimizer, tuple):
+        # Check if optimizer is a tuple (primal, multipliers) or single optimizer
+        # Note: GradientTransformations are NamedTuples with (init, update), so we check
+        # if the first element does NOT have 'init' to identify tuple of two optimizers
+        is_optimizer_tuple = (isinstance(self.optimizer, tuple) and
+                              len(self.optimizer) == 2 and
+                              not callable(self.optimizer[0]))
+        if is_optimizer_tuple:
             import optax as optax_module
-            primal_opt, dual_opt = self.optimizer
+            primal_opt, multipliers_opt = self.optimizer
             # Label function: map each parameter to optimizer label
             def param_labels(params):
-                # params is a tuple (primal, dual)
-                return ('primal', 'dual')
+                # params is a tuple (primal, multipliers)
+                return ('primal', 'multipliers')
             combined_optimizer = optax_module.multi_transform(
-                {'primal': primal_opt, 'dual': dual_opt},
+                {'primal': primal_opt, 'multipliers': multipliers_opt},
                 param_labels
             )
             optimizer_to_use = combined_optimizer
@@ -276,7 +285,8 @@ class ChunkTranscriptionPlanner[State]:
             chunk_size=self.chunk_size,
             n_chunks=self.n_chunks,
             chunk_tolerance=self.chunk_tolerance,
-            initial_dual_scale=self.initial_dual_scale,
+            initial_multiplier_scale=self.initial_multiplier_scale,
+            multiplier_damping=self.multiplier_damping,
         )
 
         return ChunkTranscriptionPlannerCarry(
@@ -294,8 +304,8 @@ class ChunkTranscriptionPlanner[State]:
         new_carry = self.initial_carry()
 
         if self.warm_start:
-            old_primal, old_dual = carry.optimizer_carry.current
-            new_primal, new_dual = new_carry.optimizer_carry.current
+            old_primal, old_multipliers = carry.optimizer_carry.current
+            new_primal, new_multipliers = new_carry.optimizer_carry.current
 
             shifted_controls = jnp.concatenate(
                 [old_primal.controls[1:], old_primal.controls[-1:]], axis=0
@@ -314,17 +324,17 @@ class ChunkTranscriptionPlanner[State]:
                 controls=shifted_controls,
             )
 
-            shifted_dual = jnp.concatenate(
-                [old_dual[1:], old_dual[-1:]], axis=0
+            shifted_multipliers = jnp.concatenate(
+                [old_multipliers[1:], old_multipliers[-1:]], axis=0
             )
 
             new_carry = new_carry.replace(  # type: ignore
                 optimizer_carry=new_carry.optimizer_carry.replace(  # type: ignore
-                    current=(new_primal, shifted_dual)
+                    current=(new_primal, shifted_multipliers)
                 )
             )
 
-        primal, dual = new_carry.optimizer_carry.current
+        primal, multipliers = new_carry.optimizer_carry.current
         state_leaves = jtu.tree_leaves(state)
         state_flat = jnp.concatenate([leaf.reshape(-1) for leaf in state_leaves])
         primal = primal.replace(  # type: ignore
@@ -332,7 +342,7 @@ class ChunkTranscriptionPlanner[State]:
         )
         new_carry = new_carry.replace(  # type: ignore
             optimizer_carry=new_carry.optimizer_carry.replace(  # type: ignore
-                current=(primal, dual)
+                current=(primal, multipliers)
             )
         )
 
@@ -341,7 +351,7 @@ class ChunkTranscriptionPlanner[State]:
             problem_data: State,
             key: JaxRandomKey,
         ) -> tuple[jax.Array, None]:
-            primal, dual = parameter
+            primal, multipliers = parameter
 
             cost_key, constraint_key = jr.split(key)
             total_cost = compute_total_cost(
@@ -358,21 +368,29 @@ class ChunkTranscriptionPlanner[State]:
                 constraint_key,
             )
 
-            # Standard augmented Lagrangian: L = cost + dual^T * violations
-            lagrangian = total_cost + jnp.sum(dual * violations)
+            # Augmented Lagrangian with multiplier damping:
+            # L = cost + multipliers^T * violations - damping * ||multipliers||^2
+            # The damping term prevents multipliers from growing unbounded
+            damping_penalty = self.multiplier_damping * jnp.sum(multipliers ** 2)
+            lagrangian = total_cost + jnp.sum(multipliers * violations) - damping_penalty
 
             return lagrangian, None
 
-        # Check if optimizer is a tuple (primal, dual) or single optimizer
-        if isinstance(self.optimizer, tuple):
+        # Check if optimizer is a tuple (primal, multipliers) or single optimizer
+        # Note: GradientTransformations are NamedTuples with (init, update), so we check
+        # if the first element does NOT have 'init' to identify tuple of two optimizers
+        is_optimizer_tuple = (isinstance(self.optimizer, tuple) and
+                              len(self.optimizer) == 2 and
+                              not callable(self.optimizer[0]))
+        if is_optimizer_tuple:
             import optax as optax_module
-            primal_opt, dual_opt = self.optimizer
+            primal_opt, multipliers_opt = self.optimizer
             # Label function: map each parameter to optimizer label
             def param_labels(params):
-                # params is a tuple (primal, dual)
-                return ('primal', 'dual')
+                # params is a tuple (primal, multipliers)
+                return ('primal', 'multipliers')
             combined_optimizer = optax_module.multi_transform(
-                {'primal': primal_opt, 'dual': dual_opt},
+                {'primal': primal_opt, 'multipliers': multipliers_opt},
                 param_labels
             )
             optimizer_to_use = combined_optimizer
@@ -385,7 +403,8 @@ class ChunkTranscriptionPlanner[State]:
             chunk_size=self.chunk_size,
             n_chunks=self.n_chunks,
             chunk_tolerance=self.chunk_tolerance,
-            initial_dual_scale=self.initial_dual_scale,
+            initial_multiplier_scale=self.initial_multiplier_scale,
+            multiplier_damping=self.multiplier_damping,
         )
 
         def body_fun(_, val):

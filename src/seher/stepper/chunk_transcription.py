@@ -116,8 +116,8 @@ class ChunkTranscriptionOptimizerCarry:
     Attributes
     ----------
     current:
-        Current solution as [primal, dual] where primal contains the
-        chunk_states and controls, and dual contains Lagrangian multipliers.
+        Current solution as [primal, multipliers] where primal contains the
+        chunk_states and controls, and multipliers contains Lagrangian multipliers.
     current_value:
         Current value of the objective function.
     opt_state:
@@ -147,7 +147,7 @@ class ChunkTranscriptionOptimizer[ProblemData](
     constrained optimization problem via an augmented Lagrangian formulation.
 
     The primal variables are the states at chunk boundaries and all controls.
-    The dual variables are Lagrangian multipliers enforcing that chunk
+    The multipliers are Lagrangian multipliers enforcing that chunk
     boundaries match when rolling out the dynamics within each chunk.
 
     Attributes
@@ -164,8 +164,11 @@ class ChunkTranscriptionOptimizer[ProblemData](
     chunk_tolerance:
         Band size for constraint violations. Violations are only penalized
         when the difference between chunk boundaries exceeds this value.
-    initial_dual_scale:
+    initial_multiplier_scale:
         Initial scale for Lagrangian multipliers.
+    multiplier_damping:
+        Damping coefficient for multipliers. Adds a quadratic penalty
+        to prevent multipliers from growing too large.
 
     """
 
@@ -176,7 +179,8 @@ class ChunkTranscriptionOptimizer[ProblemData](
     chunk_size: int = field(pytree_node=False)
     n_chunks: int = field(pytree_node=False)
     chunk_tolerance: float = 0.01
-    initial_dual_scale: float = 0.1
+    initial_multiplier_scale: float = 0.1
+    multiplier_damping: float = 0.01
 
     def initial_carry(  # noqa: D102
         self, sample_parameter: tuple[ChunkTranscriptionParams, jax.Array]
@@ -209,15 +213,20 @@ class ChunkTranscriptionOptimizer[ProblemData](
             carry.current, problem_data, key
         )
 
-        # Negate dual gradients for gradient ascent.
-        primal_grads, dual_grads = grads
-        grads = (primal_grads, -dual_grads)
+        # Negate multiplier gradients for gradient ascent.
+        primal_grads, multiplier_grads = grads
+        grads = (primal_grads, -multiplier_grads)
 
         # Update parameters.
         updates, new_opt_state = self.optimizer.update(
             grads, carry.opt_state, carry.current
         )
         params = optax.apply_updates(carry.current, updates)
+
+        # Project multipliers to be non-negative (inequality constraints)
+        primal, multipliers = params
+        multipliers = jnp.maximum(multipliers, 0.0)
+        params = (primal, multipliers)
 
         return (
             ChunkTranscriptionOptimizerCarry(
