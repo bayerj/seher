@@ -9,6 +9,7 @@ import plotext
 import pytest
 
 from seher.ars import ars_value_and_grad
+from seher.control.chunk_transcription_planner import ChunkTranscriptionPlanner
 from seher.control.mpc import MPCPolicy, RandomSearchPlanner
 from seher.control.stepper_planner import StepperPlanner
 from seher.simulate import RichProgressCallback, simulate
@@ -97,6 +98,26 @@ def _uniform_proposal(
             Pendulum(),
             jr.PRNGKey(42),
             3.0,
+        ),
+        (
+            "chunk-transcription-on-pendulum",
+            100,
+            ChunkTranscriptionPlanner(
+                mdp=None,  # type: ignore
+                optimizer=(
+                    optax.adam(learning_rate=0.05),  # Primal: Adam
+                    optax.sgd(learning_rate=0.1),    # Multipliers: plain gradient descent
+                ),
+                n_plan_steps=30,  # Longer horizon for better performance
+                chunk_size=5,
+                n_iter=30,
+                chunk_tolerance=0.1,
+                initial_multiplier_scale=0.001,  # Lower for more stable control
+                warm_start=True,
+            ),
+            Pendulum(),
+            jr.PRNGKey(42),
+            7.5,  # Based on best observed performance
         ),
         pytest.param(
             "mppi-on-cartpole",
