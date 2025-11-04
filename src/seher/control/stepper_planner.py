@@ -49,7 +49,9 @@ class StepperPlanner[State]:
         Optional argument to decode the plan into a longer one. This is useful
         for planning with `k` support controls which are then interpolated into
         a plan of length `m > k`.
-
+    encode_plan:
+        Optional argument, inverse operation of `decode_plan`. Necessary if
+        `warm_start` is True.
     """
 
     mdp: MDP[State, jax.Array, jax.Array]
@@ -58,6 +60,7 @@ class StepperPlanner[State]:
     n_iter: int = field(pytree_node=False)
     warm_start: bool = True
     decode_plan: Callable[[jax.Array], jax.Array] = lambda x: x
+    encode_plan: Callable[[jax.Array], jax.Array] = lambda x: x
 
     def __post_init__(self):  # noqa: D105
         if self.n_iter <= 0:
@@ -82,10 +85,13 @@ class StepperPlanner[State]:
         new_carry = self.initial_carry()
 
         if self.warm_start:
+            encoded_plan = carry.stepper_carry.current
+            decoded_plan = self.decode_plan(encoded_plan)
+            next_plan = decoded_plan.at[:-1].set(decoded_plan[1:])
+            encoded_next_plan = self.encode_plan(next_plan)
+
             new_stepper_carry = new_carry.stepper_carry.replace(  # type: ignore
-                current=new_carry.stepper_carry.current.at[:-1].set(
-                    carry.stepper_carry.current[1:]
-                ),
+                current=encoded_next_plan,
             )
             new_carry = new_carry.replace(  # type: ignore
                 stepper_carry=new_stepper_carry

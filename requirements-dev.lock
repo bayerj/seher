@@ -120,6 +120,8 @@ gitpython==3.1.44
 glfw==2.8.0
     # via dm-control
     # via mujoco
+greenlet==3.2.4
+    # via sqlalchemy
 grpcio==1.70.0
     # via brax
 gym==0.26.2
@@ -326,6 +328,7 @@ pyflakes==3.2.0
 pygments==2.19.1
     # via ipython
     # via ipython-pygments-lexers
+    # via pytest
     # via rich
 pylint==3.3.5
     # via python-lsp-server
@@ -336,10 +339,16 @@ pyparsing==3.2.1
     # via dm-control
     # via matplotlib
 pyright==1.1.400
-pytest==8.3.4
+pytest==8.4.2
     # via pytest-cov
     # via pytest-xdist
+    # via seher
 pytest-cov==6.0.0
+    # via pytest-cover
+pytest-cover==3.0.0
+    # via pytest-coverage
+pytest-coverage==0.0
+    # via seher
 pytest-xdist==3.7.0
 python-dateutil==2.9.0.post0
     # via matplotlib
